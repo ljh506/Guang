@@ -11,40 +11,87 @@ AIGC:
 
 
 
-# 拾光Agent ·  AI/算法模块
+# 拾光Agent · 大学校园智能闲置循环平台
 
-> 校园闲置循环与以物换物平台 —— AI/算法模块
+> 校园闲置循环与以物换物平台 —— 后端服务 + AI/算法模块
 
-本项目是「拾光Agent」校园闲置交换平台中算法模块，聚焦三个核心能力：
+本仓库包含两部分：
 
-1. **物品类别识别**：封装外部视觉识别服务，将图片识别为平台 10 个一级类别之一，并输出置信度；
-2. **价格建议引擎**：按「类别 + 品相」查折扣表，计算建议估价区间（仅供参考）；
-3. **交换匹配规则**：基于 asking_price 的价格匹配，规则见 `docs/3_交换匹配规则初稿.md`。
+1. **后端服务（成员A）**：FastAPI + SQLite，用户/学校/商品/交换 API；
+2. **AI/算法模块（成员B）**：
+   - **物品类别识别**：封装外部视觉识别服务，将图片识别为平台 10 个一级类别之一，并输出置信度；
+   - **价格建议引擎**：按「类别 + 品相」查折扣表，计算建议估价区间（仅供参考）；
+   - **交换匹配规则**：基于 asking_price 的价格匹配，规则见 `docs/3_交换匹配规则初稿.md`。
 
 设计原则：**AI 只负责类别识别，不直接决定价格**；真实成交标价 `asking_price` 由用户手动输入，规则引擎仅给出参考区间与提示，不阻断发布。
+
+---
+
+## 当前进度
+
+- Day 1：Git 仓库、FastAPI 骨架、SQLite 连接、User/School 表初版。
+- Day 2（成员A）：User/School 基础模型定稿（对齐计划书 §七）；健康检查 API 增加数据库连通检测；集成成员B交付的价格引擎与 AI 客户端至 `backend/app/services/`（自测 PASS=32 FAIL=0）。
+- Day 2（成员B）：price_engine / ai_client / test_day2 交付，Day1 规则文档入库。
 
 ---
 
 ## 目录结构
 
 ```
-github_upload/
-├── price_engine.py        # 价格规则引擎（建议估价区间 + 标价提示校验）
-├── ai_client.py           # AI 识别服务客户端（阈值分流 + 失败兜底，可 mock）
-├── test_day2.py           # 自测脚本（32 项用例，覆盖示例/边界/分流/一致性）
-├── requirements.txt       # 依赖清单（无第三方依赖，标准库即可）
-├── README.md              # 本文档
-└── docs/                  # 规则文档与交接文档（Day1 + Day2）
-    ├── 1_AI识别类别清单.md         # Day1：10 个一级类别、置信度阈值、兜底策略
-    ├── 2_价格规则初稿.md           # Day1：折扣表、估价公式、asking_price 手动标价机制
-    ├── 3_交换匹配规则初稿.md       # Day1：匹配权重 50/30/20、阈值、匹配接口草案
-    ├── 4_交接文档_成员B_Day1.md    # Day1：面向团队交接说明与风险提示
-    └── 交接文档_成员B_Day2.md      # Day2：代码使用方式、接口约定、后续待办
+Guang/
+├── backend/                    # 后端服务（成员A，FastAPI + SQLite）
+│   ├── app/
+│   │   ├── main.py             # FastAPI 入口（/ 与 /api/v1/health）
+│   │   ├── models.py           # User / School 模型
+│   │   ├── database.py         # SQLite 连接与会话
+│   │   ├── routers/health.py   # 健康检查（服务 + 数据库连通检测）
+│   │   └── services/           # 成员B算法模块正式集成位置
+│   │       ├── price_engine.py # 价格规则引擎（建议估价区间 + 标价提示校验）
+│   │       └── ai_client.py    # AI 识别服务客户端（阈值分流 + 失败兜底，可 mock）
+│   ├── tests/test_day2.py      # Day2 集成自测脚本（32 项用例）
+│   ├── requirements.txt        # 后端依赖清单
+│   └── shiguang.db             # SQLite 数据库（运行时生成）
+├── price_engine.py             # 成员B原始交付副本（正式集成位于 backend/app/services/）
+├── ai_client.py                # 成员B原始交付副本
+├── test_day2.py                # 成员B自测脚本副本
+├── requirements.txt            # 算法模块依赖（无第三方依赖，标准库即可）
+├── 成员A_Day2_交付说明.md      # 成员A Day2 交付说明
+└── docs/                       # 规则文档与交接文档（Day1 + Day2）
+    ├── 1_AI识别类别清单.md     # Day1：10 个一级类别、置信度阈值、兜底策略
+    ├── 2_价格规则初稿.md       # Day1：折扣表、估价公式、asking_price 手动标价机制
+    ├── 3_交换匹配规则初稿.md   # Day1：匹配权重 50/30/20、阈值、匹配接口草案
+    └── 4_交接文档_成员B_Day1.md # Day1：面向团队交接说明与风险提示
 ```
 
 ---
 
-## 模块功能与使用示例
+## 后端启动方式（成员A）
+
+### 环境要求
+
+- Python 3.11+
+- Anaconda
+
+### 创建并激活环境
+
+```bash
+conda create -n shiguang python=3.11 -y
+conda activate shiguang
+pip install -r backend/requirements.txt
+```
+
+### 启动
+
+```bash
+cd backend
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+验证：`GET http://127.0.0.1:8000/api/v1/health` 返回 `{"status":"ok","database":"ok"}`。
+
+---
+
+## 模块功能与使用示例（成员B）
 
 ### 1. price_engine.py —— 价格规则引擎
 
@@ -115,7 +162,8 @@ r = mock.recognize("test.jpg")
 ## 测试运行方式
 
 ```bash
-python test_day2.py
+python test_day2.py          # 成员B原始脚本（仓库根目录）
+python backend/tests/test_day2.py   # 集成进后端工程后的脚本
 ```
 
 预期输出：`===== 结果汇总：PASS=32 FAIL=0 =====`
@@ -138,14 +186,13 @@ python test_day2.py
 | `test_day2.py` | 计划书 §四 + Day1 文档 | 68 元示例、折扣表、权重等数字与计划书一致 |
 | 匹配规则（待实现） | `docs/3_交换匹配规则初稿.md` | MatchScore = 0.50×类别 + 0.30×价格 + 0.20×同校，基于 `asking_price`，Day 3 起实现 |
 
-匹配规则（MatchScore = 0.50×类别 + 0.30×价格 + 0.20×同校，基于 `asking_price`）将在 Day 3 匹配模块中实现，本目录不包含。
-
 ---
 
 ## 后续迭代计划
 
 | Day | 计划 |
 |---|---|
+| Day 3 | 用户/学校增删查、选择学校 API（成员A） |
 | Day 4 | 类别标准化：识别标签映射表扩充、类别选择器交互对齐 |
 | Day 5 | 识别链路：前端上传 → AI 识别 → 结果确认全流程联调 |
 | Day 6 | 折扣完善：折扣表配置化、电子产品年限规则细化、估价接口 POST /estimate 正式落地 |
@@ -155,6 +202,6 @@ python test_day2.py
 
 ## 安全与合规说明
 
-- 本目录代码**不含任何本机绝对路径、密钥、Token 或团队内部敏感信息**（已扫描验证）；
+- 本仓库代码**不含任何密钥、Token 或团队内部敏感信息**；
 - 接入真实视觉识别服务时，密钥应通过环境变量或配置中心注入，**严禁硬编码进代码**；
 - 如需上传公开仓库，建议同时补充开源许可证文件。
