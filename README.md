@@ -32,7 +32,8 @@ AIGC:
 - Day 1：Git 仓库、FastAPI 骨架、SQLite 连接、User/School 表初版。
 - Day 2（成员A）：User/School 基础模型定稿（对齐计划书 §七）；健康检查 API 增加数据库连通检测；集成成员B交付的价格引擎与 AI 客户端至 `backend/app/services/`（自测 PASS=32 FAIL=0）。
 - Day 2（成员B）：price_engine / ai_client / test_day2 交付，Day1 规则文档入库。
-- Day 3（成员B）：data 演示数据交付（seed_data.py / demo_schools.csv / demo_users.csv），Day3 交接文档入库。
+- Day 3（成员A）：School/User 增删查改 + 选校 API；Pydantic schemas；接入B的 7 所学校 + 5 个用户演示数据；API 验收 PASS=17 FAIL=0。
+- Day 3（成员B）：7 所学校 + 5 个用户 CSV、幂等 seed 脚本与 Day3 交接文档交付。
 
 ---
 
@@ -45,11 +46,21 @@ Guang/
 │   │   ├── main.py             # FastAPI 入口（/ 与 /api/v1/health）
 │   │   ├── models.py           # User / School 模型
 │   │   ├── database.py         # SQLite 连接与会话
-│   │   ├── routers/health.py   # 健康检查（服务 + 数据库连通检测）
+│   │   ├── schemas.py          # Pydantic schemas（School / User / 选校请求）
+│   │   ├── routers/
+│   │   │   ├── health.py       # 健康检查（服务 + 数据库连通检测）
+│   │   │   ├── schools.py      # 学校 CRUD
+│   │   │   └── users.py        # 用户 CRUD + 选校
 │   │   └── services/           # 成员B算法模块正式集成位置
 │   │       ├── price_engine.py # 价格规则引擎（建议估价区间 + 标价提示校验）
 │   │       └── ai_client.py    # AI 识别服务客户端（阈值分流 + 失败兜底，可 mock）
-│   ├── tests/test_day2.py      # Day2 集成自测脚本（32 项用例）
+│   ├── data/
+│   │   ├── schools.csv         # 演示学校（7 所，Day3 B 交付）
+│   │   └── users.csv           # 演示用户（5 个，Day3 B 交付）
+│   ├── scripts/seed_data.py    # 演示数据导入脚本（幂等）
+│   ├── tests/
+│   │   ├── test_day2.py        # Day2 集成自测脚本（32 项用例）
+│   │   └── test_day3.py        # Day3 API 验收脚本（17 项用例）
 │   ├── requirements.txt        # 后端依赖清单
 │   └── shiguang.db             # SQLite 数据库（运行时生成）
 ├── price_engine.py             # 成员B原始交付副本（正式集成位于 backend/app/services/）
@@ -61,6 +72,7 @@ Guang/
 │   ├── demo_schools.csv        # 演示高校数据（7 所）
 │   └── demo_users.csv          # 演示用户数据（5 个）
 ├── 成员A_Day2_交付说明.md      # 成员A Day2 交付说明
+├── 成员A_Day3_交付说明.md      # 成员A Day3 交付说明
 └── docs/                       # 规则文档与交接文档（Day1 + Day2 + Day3）
     ├── 1_AI识别类别清单.md     # Day1：10 个一级类别、置信度阈值、兜底策略
     ├── 2_价格规则初稿.md       # Day1：折扣表、估价公式、asking_price 手动标价机制
@@ -199,7 +211,7 @@ python backend/tests/test_day2.py   # 集成进后端工程后的脚本
 
 | Day | 计划 |
 |---|---|
-| Day 3 | 用户/学校增删查、选择学校 API（成员A） |
+| Day 3 | 用户/学校增删查、选择学校 API（成员A）✅ |
 | Day 4 | 类别标准化：识别标签映射表扩充、类别选择器交互对齐 |
 | Day 5 | 识别链路：前端上传 → AI 识别 → 结果确认全流程联调 |
 | Day 6 | 折扣完善：折扣表配置化、电子产品年限规则细化、估价接口 POST /estimate 正式落地 |
