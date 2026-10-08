@@ -32,6 +32,7 @@ AIGC:
 - Day 1：Git 仓库、FastAPI 骨架、SQLite 连接、User/School 表初版。
 - Day 2（成员A）：User/School 基础模型定稿（对齐计划书 §七）；健康检查 API 增加数据库连通检测；集成成员B交付的价格引擎与 AI 客户端至 `backend/app/services/`（自测 PASS=32 FAIL=0）。
 - Day 2（成员B）：price_engine / ai_client / test_day2 交付，Day1 规则文档入库。
+- Day 3（成员B）：data 演示数据交付（seed_data.py / demo_schools.csv / demo_users.csv），Day3 交接文档入库。
 
 ---
 
@@ -55,12 +56,18 @@ Guang/
 ├── ai_client.py                # 成员B原始交付副本
 ├── test_day2.py                # 成员B自测脚本副本
 ├── requirements.txt            # 算法模块依赖（无第三方依赖，标准库即可）
+├── data/                       # Day3 演示数据与用户数据（成员B）
+│   ├── seed_data.py            # SQLite 幂等初始化脚本（建表 + 演示数据）
+│   ├── demo_schools.csv        # 演示高校数据（7 所）
+│   └── demo_users.csv          # 演示用户数据（5 个）
 ├── 成员A_Day2_交付说明.md      # 成员A Day2 交付说明
-└── docs/                       # 规则文档与交接文档（Day1 + Day2）
+└── docs/                       # 规则文档与交接文档（Day1 + Day2 + Day3）
     ├── 1_AI识别类别清单.md     # Day1：10 个一级类别、置信度阈值、兜底策略
     ├── 2_价格规则初稿.md       # Day1：折扣表、估价公式、asking_price 手动标价机制
     ├── 3_交换匹配规则初稿.md   # Day1：匹配权重 50/30/20、阈值、匹配接口草案
-    └── 4_交接文档_成员B_Day1.md # Day1：面向团队交接说明与风险提示
+    ├── 4_交接文档_成员B_Day1.md # Day1：面向团队交接说明与风险提示
+    ├── 交接文档_成员B_Day2.md  # Day2：成员B 交接说明
+    └── 交接文档_成员B_Day3.md  # Day3：成员B 交接说明
 ```
 
 ---
