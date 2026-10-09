@@ -161,7 +161,7 @@ def estimate_price(category_id, condition, original_price, is_free=False,
         else:
             return {"error": {"error_code": err_code, "message": ERROR_CODES[err_code]}}
 
-    if price == 0:
+    if price == 0 or is_free:
         # 免费赠送：估价恒为 [0, 0]
         if not is_free:
             # 原价 0 且非赠送：按 Day1 文档，原价 ≤ 0 非赠送按无效处理

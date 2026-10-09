@@ -35,8 +35,9 @@ AIGC:
 - Day 2（成员B）：price_engine / ai_client / test_day2 交付，Day1 规则文档入库。
 - Day 3（成员A）：School/User 增删查改 + 选校 API；Pydantic schemas；接入B的 7 所学校 + 5 个用户演示数据；API 验收 PASS=17 FAIL=0。
 - Day 3（成员B）：7 所学校 + 5 个用户 CSV、幂等 seed 脚本与 Day3 交接文档交付。
-- Day 4（成员B）：类别标准化与估价参数定义：category_normalizer / estimate_params / test_day4 交付，Day4 交接文档入库。
-
+- Day 4（成员A）：Goods 模型 + 发布/列表/详情 API（发布时串联 Day4 校验与 Day2 估价引擎落库 estimated_min/max）；CORS 中间件；API 验收 PASS=26 FAIL=0。
+- Day 4（成员B）：category_normalizer（180+ 别名标准化）+ estimate_params（参数校验）交付，自测 PASS=34 FAIL=0。
+- Day 4（修复）：price_engine 免费赠送边界修复——is_free=True 且原价>0 时估价现在恒为 0~0（与 B 交接文档约定一致，Day2 回归 32/32 通过）。
 ---
 
 ## 目录结构
@@ -52,17 +53,22 @@ Guang/
 │   │   ├── routers/
 │   │   │   ├── health.py       # 健康检查（服务 + 数据库连通检测）
 │   │   │   ├── schools.py      # 学校 CRUD
-│   │   │   └── users.py        # 用户 CRUD + 选校
+│   │   │   ├── users.py        # 用户 CRUD + 选校
+│   │   │   └── goods.py        # 商品发布/列表/详情/更新/删除（Day4）
 │   │   └── services/           # 成员B算法模块正式集成位置
 │   │       ├── price_engine.py # 价格规则引擎（建议估价区间 + 标价提示校验）
-│   │       └── ai_client.py    # AI 识别服务客户端（阈值分流 + 失败兜底，可 mock）
+│   │       ├── ai_client.py    # AI 识别服务客户端（阈值分流 + 失败兜底，可 mock）
+│   │       ├── category_normalizer.py # Day4 类别标准化（180+ 别名）
+│   │       └── estimate_params.py     # Day4 估价输入参数校验
 │   ├── data/
 │   │   ├── schools.csv         # 演示学校（7 所，Day3 B 交付）
 │   │   └── users.csv           # 演示用户（5 个，Day3 B 交付）
 │   ├── scripts/seed_data.py    # 演示数据导入脚本（幂等）
 │   ├── tests/
 │   │   ├── test_day2.py        # Day2 集成自测脚本（32 项用例）
-│   │   └── test_day3.py        # Day3 API 验收脚本（17 项用例）
+│   │   ├── test_day3.py        # Day3 API 验收脚本（17 项用例）
+│   │   ├── test_day4.py        # Day4 B 类别标准化/参数校验自测（34 项用例）
+│   │   └── test_day4_api.py    # Day4 商品 API 验收脚本（26 项用例）
 │   ├── requirements.txt        # 后端依赖清单
 │   └── shiguang.db             # SQLite 数据库（运行时生成）
 ├── price_engine.py             # 成员B原始交付副本（正式集成位于 backend/app/services/）
@@ -78,6 +84,7 @@ Guang/
 │   └── demo_users.csv          # 演示用户数据（5 个）
 ├── 成员A_Day2_交付说明.md      # 成员A Day2 交付说明
 ├── 成员A_Day3_交付说明.md      # 成员A Day3 交付说明
+├── 成员A_Day4_交付说明.md      # 成员A Day4 交付说明
 └── docs/                       # 规则文档与交接文档（Day1 + Day2 + Day3 + Day4）
     ├── 1_AI识别类别清单.md     # Day1：10 个一级类别、置信度阈值、兜底策略
     ├── 2_价格规则初稿.md       # Day1：折扣表、估价公式、asking_price 手动标价机制
