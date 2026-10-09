@@ -11,6 +11,7 @@ AIGC:
 
 
 
+
 # 拾光Agent · 大学校园智能闲置循环平台
 
 > 校园闲置循环与以物换物平台 —— 后端服务 + AI/算法模块
@@ -34,6 +35,7 @@ AIGC:
 - Day 2（成员B）：price_engine / ai_client / test_day2 交付，Day1 规则文档入库。
 - Day 3（成员A）：School/User 增删查改 + 选校 API；Pydantic schemas；接入B的 7 所学校 + 5 个用户演示数据；API 验收 PASS=17 FAIL=0。
 - Day 3（成员B）：7 所学校 + 5 个用户 CSV、幂等 seed 脚本与 Day3 交接文档交付。
+- Day 4（成员B）：类别标准化与估价参数定义：category_normalizer / estimate_params / test_day4 交付，Day4 交接文档入库。
 
 ---
 
@@ -66,6 +68,9 @@ Guang/
 ├── price_engine.py             # 成员B原始交付副本（正式集成位于 backend/app/services/）
 ├── ai_client.py                # 成员B原始交付副本
 ├── test_day2.py                # 成员B自测脚本副本
+├── category_normalizer.py      # Day4：类别标准化（识别标签→平台类别归一化/映射）
+├── estimate_params.py          # Day4：估价参数定义（折扣表/品相/边界参数）
+├── test_day4.py                # Day4：成员B 类别标准化与估价参数自测脚本
 ├── requirements.txt            # 算法模块依赖（无第三方依赖，标准库即可）
 ├── data/                       # Day3 演示数据与用户数据（成员B）
 │   ├── seed_data.py            # SQLite 幂等初始化脚本（建表 + 演示数据）
@@ -73,13 +78,14 @@ Guang/
 │   └── demo_users.csv          # 演示用户数据（5 个）
 ├── 成员A_Day2_交付说明.md      # 成员A Day2 交付说明
 ├── 成员A_Day3_交付说明.md      # 成员A Day3 交付说明
-└── docs/                       # 规则文档与交接文档（Day1 + Day2 + Day3）
+└── docs/                       # 规则文档与交接文档（Day1 + Day2 + Day3 + Day4）
     ├── 1_AI识别类别清单.md     # Day1：10 个一级类别、置信度阈值、兜底策略
     ├── 2_价格规则初稿.md       # Day1：折扣表、估价公式、asking_price 手动标价机制
     ├── 3_交换匹配规则初稿.md   # Day1：匹配权重 50/30/20、阈值、匹配接口草案
     ├── 4_交接文档_成员B_Day1.md # Day1：面向团队交接说明与风险提示
     ├── 交接文档_成员B_Day2.md  # Day2：成员B 交接说明
-    └── 交接文档_成员B_Day3.md  # Day3：成员B 交接说明
+    ├── 交接文档_成员B_Day3.md  # Day3：成员B 交接说明
+    └── 交接文档_成员B_Day4.md  # Day4：成员B 交接说明
 ```
 
 ---
@@ -176,6 +182,28 @@ mock.add_failure("模拟超时")          # -> fallback
 r = mock.recognize("test.jpg")
 ```
 
+### 3. category_normalizer.py —— 类别标准化（Day4）
+
+将外部识别服务的原始标签（raw_label）归一化为平台 10 个一级类别之一：扩充标签映射表、同义词/别名归一、未命中兜底到 `other`，输出与 ai_client 一致的 category_id / category_name。
+
+```python
+from category_normalizer import normalize_label, normalize_label_with_params
+
+category_id, category_name = normalize_label("T恤")          # -> clothing / 衣物
+category_id, category_name = normalize_label_with_params("t-shirt", {"alias_map": {...}})
+```
+
+### 4. estimate_params.py —— 估价参数定义（Day4）
+
+集中定义价格引擎参数：10 类别 × 3 品相折扣表、电子产品年限微调规则、原价/标价上下限等边界参数；`get_discount_params()` / `get_boundary_params()` 供 price_engine 与 test_day4 复用，保证折扣数字单一来源。
+
+```python
+from estimate_params import get_discount_params, get_boundary_params
+
+discounts = get_discount_params()   # {"textbook": {"new_like": 0.7, "good": 0.5, ...}, ...}
+bounds = get_boundary_params()      # {"price_max": ..., "device_age_months_max": ...}
+```
+
 ---
 
 ## 测试运行方式
@@ -183,6 +211,7 @@ r = mock.recognize("test.jpg")
 ```bash
 python test_day2.py          # 成员B原始脚本（仓库根目录）
 python backend/tests/test_day2.py   # 集成进后端工程后的脚本
+python test_day4.py          # Day4 类别标准化与估价参数自测脚本
 ```
 
 预期输出：`===== 结果汇总：PASS=32 FAIL=0 =====`
@@ -203,6 +232,8 @@ python backend/tests/test_day2.py   # 集成进后端工程后的脚本
 | `price_engine.py` | 《2_价格规则初稿.md》 | 折扣表数字一致；建议区间仅参考；`asking_price` 用户手填、仅提示不阻断（§4.5）；reason_text 可解释文本（§5）；错误码（§6） |
 | `ai_client.py` | 《1_AI识别类别清单.md》 | 10 个一级类别 ID/名称一致；置信度阈值 0.80/0.60 分流（§3）；失败兜底与手动选择（§5）；兜底类别 other |
 | `test_day2.py` | 计划书 §四 + Day1 文档 | 68 元示例、折扣表、权重等数字与计划书一致 |
+| `category_normalizer.py` | 《1_AI识别类别清单.md》 | Day4：识别标签→平台类别映射表扩充、别名归一、未命中兜底 other |
+| `estimate_params.py` | 《2_价格规则初稿.md》 | Day4：折扣表/品相/边界参数单一来源，供 price_engine 复用 |
 | 匹配规则（待实现） | `docs/3_交换匹配规则初稿.md` | MatchScore = 0.50×类别 + 0.30×价格 + 0.20×同校，基于 `asking_price`，Day 3 起实现 |
 
 ---
@@ -212,7 +243,7 @@ python backend/tests/test_day2.py   # 集成进后端工程后的脚本
 | Day | 计划 |
 |---|---|
 | Day 3 | 用户/学校增删查、选择学校 API（成员A）✅ |
-| Day 4 | 类别标准化：识别标签映射表扩充、类别选择器交互对齐 |
+| Day 4 | 类别标准化：识别标签映射表扩充、类别选择器交互对齐（成员B）✅ |
 | Day 5 | 识别链路：前端上传 → AI 识别 → 结果确认全流程联调 |
 | Day 6 | 折扣完善：折扣表配置化、电子产品年限规则细化、估价接口 POST /estimate 正式落地 |
 | Day 9 | 匹配算法：基于 asking_price 的价格接近度评分与匹配接口实现 |
