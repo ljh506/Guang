@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0aefa33c1a2af1417088275368d75db0_4355a657c57311f1a08152540064ee0f
+    ReservedCode1: IaJHmwhaFY/ooBRZgQQw49CA04m5z1k36uh99AZ/PQQQVB2Xs/BhHa3lyPJMTUymLD2gsBkfDDbY+rqfhqzypuxIWB+J4pmYr/pi3aI0HPwnk7hXvAn+Ygf8R1Ijo5YCx1OoNUXco+7cBHehzzUEQTUVk17+hGyykedVkIxfRoJJ4pV9jumEodlga5E=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0aefa33c1a2af1417088275368d75db0_4355a657c57311f1a08152540064ee0f
+    ReservedCode2: IaJHmwhaFY/ooBRZgQQw49CA04m5z1k36uh99AZ/PQQQVB2Xs/BhHa3lyPJMTUymLD2gsBkfDDbY+rqfhqzypuxIWB+J4pmYr/pi3aI0HPwnk7hXvAn+Ygf8R1Ijo5YCx1OoNUXco+7cBHehzzUEQTUVk17+hGyykedVkIxfRoJJ4pV9jumEodlga5E=
+---
+
 # 交接文档_成员A_Day5
 
 > 拾光Agent 项目 · 第 5 天 · 成员A 交付说明
@@ -111,3 +122,4 @@ Content-Type: multipart/form-data
 - 接入真实视觉服务时，替换 `backend/app/routers/recognize.py` 中的 `_default_vision_backend`（或直接注入 `RecognitionPipeline(backend=...)`）即可，接口结构不变；
 - 前端上传接口见成员B交接文档 §3，与 `POST /api/v1/recognize` 完全对齐；
 - 微信小程序上传可能携带 `application/octet-stream` MIME，本接口已兼容（按扩展名白名单兜底）。
+*（内容由AI生成，仅供参考）*
