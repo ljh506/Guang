@@ -101,10 +101,10 @@ def test_price_engine():
           and "免费赠送" in r9.get("reason_text", ""),
           r9)
 
-    # 10) 电子产品年限微调
+    # 10) 电子产品年限微调（Day6 引擎升级：<6个月按原档 0.7~0.8，不再线性压价）
     r10 = estimate_price("electronics", "new_like", 1000, device_age_months=3)
-    check("电子产品/全新/1000/使用3个月 -> 700~780",
-          r10.get("estimated_min") == 700 and r10.get("estimated_max") == 780,
+    check("电子产品/全新/1000/使用3个月 -> 700~800（Day6 引擎）",
+          r10.get("estimated_min") == 700 and r10.get("estimated_max") == 800,
           r10)
 
     # 11) 字符串数字原价

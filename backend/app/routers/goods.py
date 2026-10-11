@@ -7,8 +7,7 @@ from ..database import get_db
 from ..models import Goods, School, User
 from ..schemas import (GoodsCreate, GoodsListOut, GoodsOut, GoodsUpdate)
 from ..services.category_normalizer import (CATEGORY_IDS as DAY4_CATEGORIES,
-                                            CATEGORY_NAMES as DAY4_CATEGORY_NAMES,
-                                            to_engine_category)
+                                            CATEGORY_NAMES as DAY4_CATEGORY_NAMES)
 from ..services.estimate_params import EstimateParams
 from ..services.price_engine import estimate_price, validate_asking_price
 
@@ -34,12 +33,11 @@ def _goods_to_out(g: Goods) -> GoodsOut:
 
 def _compute_estimate(category: str, condition: str, original_price: float,
                       trade_type: str, months_used: int | None):
-    """调用 Day2 估价引擎（经 Day4 类别映射），返回 (est_dict, engine_category)。"""
-    engine_cat = to_engine_category(category)
-    est = estimate_price(engine_cat, condition, original_price,
+    """调用 Day6 估价引擎（成员B Day6 完整版，直接使用 Day4 统一类别 ID）。"""
+    est = estimate_price(category, condition, original_price,
                          is_free=(trade_type == "free"),
-                         device_age_months=months_used)
-    return est, engine_cat
+                         months_used=months_used)
+    return est
 
 
 @router.get("/goods/categories")
@@ -130,10 +128,10 @@ def create_goods(payload: GoodsCreate, db: Session = Depends(get_db)):
     if not v["valid"]:
         raise HTTPException(status_code=422, detail={"errors": v["errors"]})
 
-    # 5) 估价（Day2 引擎 + Day4 类别映射）
-    est, _ = _compute_estimate(payload.category, payload.condition,
-                               payload.original_price, payload.trade_type,
-                               payload.months_used)
+    # 5) 估价（Day6 引擎，建议区间 + 依据文本，随发布一并落库）
+    est = _compute_estimate(payload.category, payload.condition,
+                            payload.original_price, payload.trade_type,
+                            payload.months_used)
     if "error" in est:
         raise HTTPException(status_code=422,
                             detail={"errors": [est["error"]]})
@@ -191,10 +189,10 @@ def update_goods(goods_id: int, payload: GoodsUpdate,
     for k, v in data.items():
         setattr(g, k, v)
 
-    # 触发重估价的字段
+    # 触发重估价的字段（Day6：重新生成建议区间与依据文本并保存）
     if {"category", "condition", "original_price", "trade_type"} & set(data):
-        est, _ = _compute_estimate(g.category, g.condition, g.original_price,
-                                   g.trade_type, None)
+        est = _compute_estimate(g.category, g.condition, g.original_price,
+                                g.trade_type, None)
         if "error" not in est:
             g.estimated_min = est["estimated_min"]
             g.estimated_max = est["estimated_max"]
