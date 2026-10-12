@@ -51,3 +51,8 @@ AIGC:
 - Day 4（成员B）：category_normalizer（180+ 别名标准化）+ estimate_params（参数校验）交付，自测 PASS=34 FAIL=0。
 - Day 4（修复）：price_engine 免费赠送边界修复——is_free=True 且原价>0 时估价现在恒为 0~0（与 B 交接文档约定一致，Day2 回归 32/32 通过）。
 - Day 5（成员B）：recognition_pipeline 识别链路交付——复用 Day2 backend 注入机制，将标签映射升级为 Day4 category_normalizer 标准化，实现置信度阈值分流（auto_fill / manual_confirm / manual_select / fallback）与统一 recommend() 返回结构；自测 PASS=25 FAIL=0；Day5 交接文档入库。
+- Day 5（成员A）：AI 识别 API 与错误处理（POST /api/v1/recognize，四类识别 + 阈值分流 + 失败兜底）并集成成员B 识别管线，测试全过并推送 GitHub；交接文档见 `docs/交接文档_成员A_Day5.md`。
+- Day 6（成员B）：price_engine 完整版交付——10 类别 × 3 品相折扣表全覆盖、months_used 电子产品降档、is_free 免费赠送、asking_price 标价提示；自测 PASS=105 FAIL=0。
+- Day 6（成员A）：估价接口 POST /api/v1/estimate；Goods 发布/更新落库估价区间（68 元教材良好 → 27~41，免费赠送 → 0~0）；API 验收 PASS=24 FAIL=0；交接文档见 `docs/交接文档_成员A_Day6.md`。
+- Day 7（成员B）：price_engine Day7 边界加固——NaN/inf 不再崩溃、bool/NaN 标价提示、异常 price 文档化；与 Day6 契约向后兼容；自测 PASS=45 FAIL=0。
+- Day 7（成员A）：收藏/想要请求 API（Want 模型 + POST /goods/{id}/want + 卖家/买家列表 + PATCH 状态流转 available→reserved）与商品详情 wants_count 状态字段；集成成员B Day7 边界加固引擎；API 验收 PASS=28 FAIL=0，全量回归 254/254 通过；交接文档见 `docs/交接文档_成员A_Day7.md`。

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Goods, School, User
+from ..models import Goods, School, User, Want
 from ..schemas import (GoodsCreate, GoodsListOut, GoodsOut, GoodsUpdate)
 from ..services.category_normalizer import (CATEGORY_IDS as DAY4_CATEGORIES,
                                             CATEGORY_NAMES as DAY4_CATEGORY_NAMES)
@@ -17,7 +17,7 @@ TRADE_TYPES = {"sell", "free", "exchange"}
 GOODS_STATUSES = {"available", "reserved", "exchanged", "removed"}
 
 
-def _goods_to_out(g: Goods) -> GoodsOut:
+def _goods_to_out(g: Goods, wants_count: int | None = None) -> GoodsOut:
     return GoodsOut(
         id=g.id, user_id=g.user_id, school_id=g.school_id,
         name=g.name, category=g.category,
@@ -27,15 +27,23 @@ def _goods_to_out(g: Goods) -> GoodsOut:
         estimated_min=g.estimated_min, estimated_max=g.estimated_max,
         reason_text=g.reason_text, asking_price=g.asking_price,
         condition=g.condition, trade_type=g.trade_type, status=g.status,
+        wants_count=wants_count,
         created_at=g.created_at,
     )
 
 
 def _compute_estimate(category: str, condition: str, original_price: float,
                       trade_type: str, months_used: int | None):
-    """调用 Day6 估价引擎（成员B Day6 完整版，直接使用 Day4 统一类别 ID）。"""
+    """调用 Day6/Day7 估价引擎（成员B 完整版，直接使用 Day4 统一类别 ID）。
+
+    Day7 集成适配：免费赠送（trade_type=free）在 API 层强制估价 0~0（计划书验收基线），
+    引擎的 is_free 标记仅处理原价缺失/非法场景；调用方统一在此保证「免费赠送 → 0~0」。
+    """
+    if trade_type == "free":
+        return {"estimated_min": 0, "estimated_max": 0,
+                "reason_text": "该物品选择免费赠送，估价为 0 元。"}
     est = estimate_price(category, condition, original_price,
-                         is_free=(trade_type == "free"),
+                         is_free=False,
                          months_used=months_used)
     return est
 
@@ -84,11 +92,15 @@ def list_goods(
 
 @router.get("/goods/{goods_id}", response_model=GoodsOut)
 def get_goods(goods_id: int, db: Session = Depends(get_db)):
-    """商品详情。"""
+    """商品详情（含 wants_count：想要人数 = pending + accepted 请求数）。"""
     g = db.get(Goods, goods_id)
     if not g:
         raise HTTPException(status_code=404, detail="商品不存在")
-    return _goods_to_out(g)
+    wants_count = (db.query(Want)
+                   .filter(Want.goods_id == goods_id,
+                           Want.status.in_(["pending", "accepted"]))
+                   .count())
+    return _goods_to_out(g, wants_count=wants_count)
 
 
 @router.post("/goods", status_code=status.HTTP_201_CREATED)

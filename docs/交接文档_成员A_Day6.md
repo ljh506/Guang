@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0aefa33c1a2af1417088275368d75db0_548e0c16c57511f1a08152540064ee0f
+    ReservedCode1: 0hQ/OuG2GbkOvCvacIXxW13yl3BoSMjbwiZwHQfFJuQjzprV/sgkZtuv86o2kYC+cMk7Qb1n3nJQgUl/9JemqnhvURIghH+rojUPCUNJIBnuKQabefMuwLiG/ZlrIlEoRpQgrGtaLwQXF1dvwMdgywIllLelcG9T9FaKM7yV5paxPDNFxRm1vpsyp+s=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0aefa33c1a2af1417088275368d75db0_548e0c16c57511f1a08152540064ee0f
+    ReservedCode2: 0hQ/OuG2GbkOvCvacIXxW13yl3BoSMjbwiZwHQfFJuQjzprV/sgkZtuv86o2kYC+cMk7Qb1n3nJQgUl/9JemqnhvURIghH+rojUPCUNJIBnuKQabefMuwLiG/ZlrIlEoRpQgrGtaLwQXF1dvwMdgywIllLelcG9T9FaKM7yV5paxPDNFxRm1vpsyp+s=
+---
+
 # 交接文档_成员A_Day6
 
 > 拾光 Agent 15 天项目 · 第 6 天 · 成员A 交付说明
@@ -87,3 +98,4 @@ C:\Users\HUAWEI\mini\envs\shiguang\python.exe backend/tests/test_day6_estimate_a
 2. **TestClient 独立数据库**：TestClient 以项目根为 cwd 时使用根目录 `shiguang.db`（仅建表无种子），故 Day6 测试内置 school/user 创建，不依赖种子数据；Day4 API 测试需先启动服务器（cd backend && uvicorn）访问 backend/shiguang.db。
 3. **免费赠送落库**：GoodsCreate 的 original_price 约束为 >0，前端免费发布可传 0.01（引擎 is_free 分支返回 0~0）或后续放开 schema 约束。
 4. **错误码/包裹层**：POST /estimate 遵循成员B《交接文档_成员B_Day6.md §五》字段契约（success/data/error）；goods 发布链路仍走原有 422 detail={"errors":[...]} 风格，两者并存，前端按接口分别处理。
+*（内容由AI生成，仅供参考）*

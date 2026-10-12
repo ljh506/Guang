@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, engine
 from . import models  # noqa: F401
-from .routers import estimate, goods, health, recognize, schools, users
+from .routers import estimate, goods, health, recognize, schools, users, wants
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,8 +24,9 @@ app.include_router(users.router, prefix="/api/v1", tags=["users"])
 app.include_router(goods.router, prefix="/api/v1", tags=["goods"])
 app.include_router(recognize.router, prefix="/api/v1", tags=["recognize"])
 app.include_router(estimate.router, prefix="/api/v1", tags=["estimate"])
+app.include_router(wants.router, prefix="/api/v1", tags=["wants"])
 
 
 @app.get("/")
 def root():
-    return {"message": "拾光 Agent backend is running", "version": "0.5.0"}
+    return {"message": "拾光 Agent backend is running", "version": "0.6.0"}

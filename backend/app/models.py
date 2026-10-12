@@ -45,3 +45,25 @@ class Goods(Base):
     trade_type = Column(String, nullable=False, default="sell")  # sell / free / exchange
     status = Column(String, nullable=False, default="available", index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Want(Base):
+    """想要请求表（Day7 成员A：用户B点击「我想要」产生的请求记录）。
+
+    对齐计划书 Day7「商品详情与我想要」验收：用户A发布 → 用户B浏览 →
+    点击我想要 → 产生请求。状态字段 status 支持：
+        pending  已提交（默认）
+        accepted 卖家接受（商品 available -> reserved）
+        rejected 卖家拒绝（终态）
+        cancelled 买家取消（终态）
+    """
+    __tablename__ = "wants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    goods_id = Column(Integer, ForeignKey("goods.id"), nullable=False, index=True)
+    requester_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    status = Column(String, nullable=False, default="pending", index=True)
+    message = Column(String, nullable=True)          # 想说的话（选填）
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(),
+                        onupdate=func.now())

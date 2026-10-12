@@ -112,6 +112,7 @@ class GoodsOut(BaseModel):
     condition: str
     trade_type: str
     status: str
+    wants_count: Optional[int] = Field(None, description="想要人数（详情接口返回）")
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -122,3 +123,37 @@ class GoodsListOut(BaseModel):
     page: int
     page_size: int
     items: list[GoodsOut]
+
+
+# ---------- Want（Day 7：收藏/想要请求） ----------
+
+class WantCreate(BaseModel):
+    """发起「我想要」请求。"""
+    user_id: int = Field(..., description="发起用户ID（想要的人）")
+    message: Optional[str] = Field(None, max_length=500, description="想说的话（选填）")
+
+
+class WantStatusUpdate(BaseModel):
+    """更新想要请求状态。"""
+    status: str = Field(..., description="目标状态：pending/accepted/rejected/cancelled")
+
+
+class WantOut(BaseModel):
+    id: int
+    goods_id: int
+    requester_id: int
+    status: str
+    message: Optional[str]
+    goods_name: Optional[str]
+    requester_nickname: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WantListOut(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: list[WantOut]
