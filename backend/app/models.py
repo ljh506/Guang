@@ -67,3 +67,41 @@ class Want(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(),
                         onupdate=func.now())
+
+
+class Conversation(Base):
+    """会话/交易表（Day8 成员A：轻量聊天的会话载体）。
+
+    对齐计划书 §七 Message 之外引入的会话实体：一个「我想要 → 聊天 → 匹配 →
+    交换 → 确认」的完整交易链路承载在一个 Conversation 上（Day9 匹配 /
+    Day10 协议共用）。trade_state 使用成员B Day8 交易状态机：
+        requested -> chatting -> matched -> negotiating -> confirmed / cancelled
+    """
+    __tablename__ = "conversations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    goods_id = Column(Integer, ForeignKey("goods.id"), nullable=False, index=True)
+    want_id = Column(Integer, ForeignKey("wants.id"), nullable=True)   # 关联 Day7 想要请求
+    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)   # 想要方
+    seller_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)  # 发布方
+    trade_state = Column(String, nullable=False, default="requested", index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(),
+                        onupdate=func.now())
+
+
+class Message(Base):
+    """消息表（对齐计划书 §七：id、sender_id、receiver_id、content、created_at）。
+
+    Day8 轻量聊天消息：归属某个会话（conversation_id），receiver 由会话对端推导，
+    存 sender_id + content + 已读标记，避免 15 天内开发复杂实时 IM。
+    """
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.id"),
+                             nullable=False, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    content = Column(String, nullable=False)
+    is_read = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -56,3 +56,5 @@ AIGC:
 - Day 6（成员A）：估价接口 POST /api/v1/estimate；Goods 发布/更新落库估价区间（68 元教材良好 → 27~41，免费赠送 → 0~0）；API 验收 PASS=24 FAIL=0；交接文档见 `docs/交接文档_成员A_Day6.md`。
 - Day 7（成员B）：price_engine Day7 边界加固——NaN/inf 不再崩溃、bool/NaN 标价提示、异常 price 文档化；与 Day6 契约向后兼容；自测 PASS=45 FAIL=0。
 - Day 7（成员A）：收藏/想要请求 API（Want 模型 + POST /goods/{id}/want + 卖家/买家列表 + PATCH 状态流转 available→reserved）与商品详情 wants_count 状态字段；集成成员B Day7 边界加固引擎；API 验收 PASS=28 FAIL=0，全量回归 254/254 通过；交接文档见 `docs/交接文档_成员A_Day7.md`。
+- Day 8（成员B）：chat_rules 交付——17 条快捷消息模板（6 场景 + 发送方约束 + 占位符渲染）与 6 态交易状态机（requested→chatting→matched→negotiating→confirmed/cancelled）；自测 PASS=35 FAIL=0。
+- Day 8（成员A）：Message 模型与消息接口（Conversation 会话 + Message 消息 + 快捷消息模板接口 + 交易状态流转接口，集成成员B Day8 chat_rules）；验收链路「想要请求→会话→消息列表→聊天→收发」全通，API 验收 PASS=27 FAIL=0，全量回归（Day2~Day8 十套测试）无 FAIL；交接文档见 `docs/交接文档_成员A_Day8.md`。

@@ -157,3 +157,75 @@ class WantListOut(BaseModel):
     page: int
     page_size: int
     items: list[WantOut]
+
+
+# ---------- 轻量聊天（Day 8：Message 模型与消息接口） ----------
+
+class ConversationCreate(BaseModel):
+    """创建会话（买卖双方 + 商品）。want_id 可选，关联 Day7 想要请求。"""
+    goods_id: int = Field(..., description="商品ID")
+    buyer_id: int = Field(..., description="想要方用户ID")
+    seller_id: int = Field(..., description="发布方用户ID")
+    want_id: Optional[int] = Field(None, description="关联的想要请求ID（选填）")
+
+
+class MessageCreate(BaseModel):
+    """发送消息。"""
+    sender_id: int = Field(..., description="发送方用户ID（必须是会话参与者）")
+    content: str = Field(..., min_length=1, max_length=1000, description="消息内容")
+
+
+class MarkReadRequest(BaseModel):
+    """标记会话已读。"""
+    user_id: int = Field(..., description="当前浏览用户ID")
+
+
+class TradeStateUpdate(BaseModel):
+    """交易状态流转（成员B Day8 状态机校验）。"""
+    trade_state: str = Field(..., description="目标状态：requested/chatting/matched/negotiating/confirmed/cancelled")
+
+
+class ConversationOut(BaseModel):
+    id: int
+    goods_id: int
+    goods_name: Optional[str]
+    want_id: Optional[int]
+    buyer_id: int
+    buyer_nickname: Optional[str]
+    seller_id: int
+    seller_nickname: Optional[str]
+    trade_state: str
+    trade_state_name: Optional[str]
+    last_message: Optional[str]
+    last_message_time: Optional[datetime]
+    unread_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConversationListOut(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: list[ConversationOut]
+
+
+class MessageOut(BaseModel):
+    id: int
+    conversation_id: int
+    sender_id: int
+    sender_nickname: Optional[str]
+    content: str
+    is_read: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MessageListOut(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: list[MessageOut]

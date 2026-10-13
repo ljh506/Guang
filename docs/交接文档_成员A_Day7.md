@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0aefa33c1a2af1417088275368d75db0_9aa67fa8c61811f1a08152540064ee0f
+    ReservedCode1: KsYonQgHi2rfqVKpNsYR+UdIwBndGn2RgwEgkACvQoMwJDa9tej2M+dvzNhQDJ0khoH49YC6RNmEfdxXTMixopsVOKOWPekKmL3oE/yF2c4qAIpkBctcoLYsBRTnz0K9jVFFbiI5gAl7uqk+mrLfzwQk7Qq/C6MjSE8F0kSBpYGiguKV7TfpL1dzFzQ=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0aefa33c1a2af1417088275368d75db0_9aa67fa8c61811f1a08152540064ee0f
+    ReservedCode2: KsYonQgHi2rfqVKpNsYR+UdIwBndGn2RgwEgkACvQoMwJDa9tej2M+dvzNhQDJ0khoH49YC6RNmEfdxXTMixopsVOKOWPekKmL3oE/yF2c4qAIpkBctcoLYsBRTnz0K9jVFFbiI5gAl7uqk+mrLfzwQk7Qq/C6MjSE8F0kSBpYGiguKV7TfpL1dzFzQ=
+---
+
 # 交接文档 · 成员A · Day7
 
 > 拾光Agent 15天项目 · 当日主题：商品详情与我想要
@@ -126,3 +137,4 @@ cd backend && C:\Users\HUAWEI\mini\envs\shiguang\python.exe -m uvicorn app.main:
 3. **测试 DB 隔离**：TestClient 跑在项目根 cwd 使用根目录 `shiguang.db`（空库），需自建 school/user；依赖种子数据（user_id=1）的测试需打真实服务器。
 4. **服务器**：Day7 联调时本机 8000 端口已由新版 uvicorn（version 0.6.0）监听；若重启请以 backend 为工作目录启动。
 5. **免费赠送**：发布/更新商品时若 `trade_type=free`，估价恒为 0~0（§4.2 适配），勿绕过 goods.py `_compute_estimate` 直接调引擎。
+*（内容由AI生成，仅供参考）*
