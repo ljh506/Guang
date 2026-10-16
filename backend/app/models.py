@@ -41,6 +41,7 @@ class Goods(Base):
     estimated_max = Column(Integer, nullable=True)   # 建议估价上限
     reason_text = Column(String, nullable=True)      # 估价依据（可解释）
     asking_price = Column(Float, nullable=True)      # 用户手填真实标价（匹配用）
+    wish_category_id = Column(String, nullable=True)  # Day9 用户想换的类别（意愿匹配用）
     condition = Column(String, nullable=False)      # new_like / good / fair
     trade_type = Column(String, nullable=False, default="sell")  # sell / free / exchange
     status = Column(String, nullable=False, default="available", index=True)
@@ -104,4 +105,32 @@ class Message(Base):
     sender_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     content = Column(String, nullable=False)
     is_read = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Exchange(Base):
+    """交换匹配记录表（Day9 成员A）。
+
+    对齐计划书 Day9「完成 Exchange 模型和匹配接口」：用户A 对某商品发起匹配，
+    确认高/普通匹配推荐后落一条交换记录（status=open），用于去重——同一对
+    (user, goods) 已存在未完成 Exchange 记录时不重复生成推荐；确认完成（close）。
+    字段：
+        goods_id        发起方商品 id
+        user_id         发起方用户 id
+        target_goods_id 目标商品 id（匹配命中的另一方商品）
+        target_user_id  目标商品所属用户 id
+        match_score     匹配度（match_engine 计算）
+        level           分级 high / normal / low
+        status          open 进行中 / closed 已完成 / cancelled 取消
+    """
+    __tablename__ = "exchanges"
+
+    id = Column(Integer, primary_key=True, index=True)
+    goods_id = Column(Integer, ForeignKey("goods.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    target_goods_id = Column(Integer, ForeignKey("goods.id"), nullable=False, index=True)
+    target_user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    match_score = Column(Float, nullable=False)
+    level = Column(String, nullable=False)
+    status = Column(String, nullable=False, default="open", index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

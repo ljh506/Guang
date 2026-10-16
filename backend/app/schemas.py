@@ -76,6 +76,7 @@ class GoodsCreate(BaseModel):
     condition: str = Field(..., description="品相 new_like/good/fair")
     original_price: float = Field(..., gt=0, description="参考原价")
     asking_price: Optional[float] = Field(None, ge=0, description="用户手填真实标价")
+    wish_category_id: Optional[str] = Field(None, description="想换的类别（Day9 意愿匹配用，Day4 十类之一）")
     description: Optional[str] = Field(None, max_length=1000)
     image: Optional[str] = Field(None, max_length=500)
     trade_type: str = Field("sell", description="sell 出售 / free 免费赠送 / exchange 以物换物")
@@ -89,6 +90,7 @@ class GoodsUpdate(BaseModel):
     condition: Optional[str] = None
     original_price: Optional[float] = Field(None, gt=0)
     asking_price: Optional[float] = Field(None, ge=0)
+    wish_category_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=1000)
     image: Optional[str] = Field(None, max_length=500)
     trade_type: Optional[str] = None
@@ -109,6 +111,7 @@ class GoodsOut(BaseModel):
     estimated_max: Optional[int]
     reason_text: Optional[str]
     asking_price: Optional[float]
+    wish_category_id: Optional[str] = Field(None, description="想换的类别（Day9）")
     condition: str
     trade_type: str
     status: str
@@ -229,3 +232,65 @@ class MessageListOut(BaseModel):
     page: int
     page_size: int
     items: list[MessageOut]
+
+
+# ---------- 交换匹配（Day 9：Exchange 模型与匹配接口） ----------
+
+class ExchangeMatchRequest(BaseModel):
+    """发起匹配推荐：基于用户某商品的意愿/价格/同校计算推荐列表。"""
+    user_id: int = Field(..., description="发起匹配的用户ID")
+    goods_id: int = Field(..., description="发起匹配的商品ID（asking_price 由 Goods 表提供）")
+
+
+class ExchangeWishRequest(BaseModel):
+    """意愿表达：设置某商品「想换什么」类别（只能设置自己的商品）。"""
+    user_id: int = Field(..., description="设置意愿的用户ID（必须是商品发布者）")
+    goods_id: int = Field(..., description="商品ID")
+    wish_category_id: str = Field(..., description="想换的类别（Day4 十类之一）")
+
+
+class ExchangeAcceptRequest(BaseModel):
+    """确认匹配：把一条高/普通匹配推荐落为 Exchange 记录（status=open），用于去重。"""
+    user_id: int = Field(..., description="发起匹配的用户ID")
+    goods_id: int = Field(..., description="发起方商品ID")
+    target_goods_id: int = Field(..., description="目标商品ID（匹配推荐中的一方）")
+
+
+class MatchItemOut(BaseModel):
+    """单条匹配推荐（含展示字段，供前端直接渲染）。"""
+    target_goods_id: int
+    target_user_id: int
+    match_score: float
+    score_detail: dict
+    weights: dict
+    level: str
+    match_reason: str
+    target_goods_name: Optional[str] = None
+    target_category_name: Optional[str] = None
+    target_asking_price: Optional[float] = None
+    target_user_nickname: Optional[str] = None
+
+
+class ExchangeOut(BaseModel):
+    """交换匹配记录（Exchange 模型对外视图）。"""
+    id: int
+    goods_id: int
+    user_id: int
+    target_goods_id: int
+    target_user_id: int
+    match_score: float
+    level: str
+    status: str
+    goods_name: Optional[str] = None
+    target_goods_name: Optional[str] = None
+    target_user_nickname: Optional[str] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ExchangeListOut(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    items: list[ExchangeOut]

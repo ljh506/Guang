@@ -1,3 +1,14 @@
+---
+AIGC:
+    Label: "1"
+    ContentProducer: 001191440300708461136T1XGW3
+    ProduceID: 0aefa33c1a2af1417088275368d75db0_00c9464ac6f411f1a08152540064ee0f
+    ReservedCode1: 6DUkR7tvwt284fQmjT/76ddADaDJNC5gCP8qvoaqyptEahvkD6R8lspVmj7IGOlEO9IuotdUnNnduHYKZI5yibPwJaNlUHUbRT7AjTDJXnAwWK0TdA81ChbOusZiJT3RgJfpOwT/+gcPdDEzJzB+XMnjW8tCflnxc04SbigSLxDfDGTBaHYslR0HEyw=
+    ContentPropagator: 001191440300708461136T1XGW3
+    PropagateID: 0aefa33c1a2af1417088275368d75db0_00c9464ac6f411f1a08152540064ee0f
+    ReservedCode2: 6DUkR7tvwt284fQmjT/76ddADaDJNC5gCP8qvoaqyptEahvkD6R8lspVmj7IGOlEO9IuotdUnNnduHYKZI5yibPwJaNlUHUbRT7AjTDJXnAwWK0TdA81ChbOusZiJT3RgJfpOwT/+gcPdDEzJzB+XMnjW8tCflnxc04SbigSLxDfDGTBaHYslR0HEyw=
+---
+
 # 交接文档_成员A_Day8
 
 > 项目：拾光Agent · 大学校园智能闲置循环平台
@@ -75,3 +86,4 @@ C:\Users\HUAWEI\mini\envs\shiguang\python.exe -m uvicorn app.main:app --host 127
 # 测试
 C:\Users\HUAWEI\mini\envs\shiguang\python.exe tests\test_day8_message_api.py
 ```
+*（内容由AI生成，仅供参考）*
