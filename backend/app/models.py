@@ -114,6 +114,9 @@ class Exchange(Base):
     对齐计划书 Day9「完成 Exchange 模型和匹配接口」：用户A 对某商品发起匹配，
     确认高/普通匹配推荐后落一条交换记录（status=open），用于去重——同一对
     (user, goods) 已存在未完成 Exchange 记录时不重复生成推荐；确认完成（close）。
+    Day10 扩展「交换状态流转 API（待确认/已确认/取消）」：
+        confirm_a / confirm_b  甲方（发起方）/ 乙方（目标方）确认标记（0/1）
+        status 流转：open（待确认）→ confirmed（双方确认）/ cancelled（取消）
     字段：
         goods_id        发起方商品 id
         user_id         发起方用户 id
@@ -121,7 +124,9 @@ class Exchange(Base):
         target_user_id  目标商品所属用户 id
         match_score     匹配度（match_engine 计算）
         level           分级 high / normal / low
-        status          open 进行中 / closed 已完成 / cancelled 取消
+        status          open 待确认 / confirmed 已确认 / cancelled 取消
+        confirm_a       发起方确认标记
+        confirm_b       目标方确认标记
     """
     __tablename__ = "exchanges"
 
@@ -133,4 +138,6 @@ class Exchange(Base):
     match_score = Column(Float, nullable=False)
     level = Column(String, nullable=False)
     status = Column(String, nullable=False, default="open", index=True)
+    confirm_a = Column(Integer, nullable=False, default=0, server_default="0")
+    confirm_b = Column(Integer, nullable=False, default=0, server_default="0")
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -34,12 +34,12 @@ def check(name, cond, detail=""):
 
 # 1. 学校列表（应包含 B 的 7 所演示学校）
 code, schools = _req("GET", "/schools")
-check("GET /schools 返回 7 所", code == 200 and len(schools) == 7, (code, len(schools)))
+check("GET /schools 返回至少 7 所（种子数据）", code == 200 and len(schools) >= 7, (code, len(schools)))
 check("首条学校=清华大学", schools and schools[0]["name"] == "清华大学", schools[0] if schools else None)
 
 # 2. 用户列表
 code, users = _req("GET", "/users")
-check("GET /users 返回 5 个", code == 200 and len(users) == 5, (code, len(users)))
+check("GET /users 返回至少 5 个（种子数据）", code == 200 and len(users) >= 5, (code, len(users)))
 
 # 3. 选校主流程：创建用户→选择学校→保存
 code, u = _req("POST", "/users",

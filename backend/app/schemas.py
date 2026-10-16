@@ -281,6 +281,8 @@ class ExchangeOut(BaseModel):
     match_score: float
     level: str
     status: str
+    confirm_a: bool = False
+    confirm_b: bool = False
     goods_name: Optional[str] = None
     target_goods_name: Optional[str] = None
     target_user_nickname: Optional[str] = None
@@ -294,3 +296,25 @@ class ExchangeListOut(BaseModel):
     page: int
     page_size: int
     items: list[ExchangeOut]
+
+
+class ExchangeConfirmRequest(BaseModel):
+    """交换确认：交换参与者对本次交换确认（待确认 open -> 双方确认 -> confirmed）。"""
+    user_id: int = Field(..., description="确认方用户ID（必须是交换参与者）")
+
+
+class ExchangeCancelRequest(BaseModel):
+    """交换取消：交换参与者取消本次交换（open/negotiating -> cancelled）。"""
+    user_id: int = Field(..., description="取消方用户ID（必须是交换参与者）")
+
+
+class ExchangeProtocolOut(BaseModel):
+    """交换协议卡片（Day10 验收：匹配→发起交换→双方确认→生成协议卡片）。"""
+    exchange_id: int
+    status: str
+    state_name: str
+    confirm_a: bool
+    confirm_b: bool
+    protocol_text: str
+    match_explanation: str
+    validation: dict

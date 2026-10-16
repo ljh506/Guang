@@ -6,7 +6,7 @@ from .routers import chat, estimate, exchange, goods, health, recognize, schools
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="拾光 Agent API", version="0.8.0")
+app = FastAPI(title="拾光 Agent API", version="0.9.0")
 
 # CORS：放开跨域，方便前端在浏览器/微信开发者工具中调试
 # 联调阶段全放开；正式上线前需收敛为具体 origin
@@ -31,4 +31,4 @@ app.include_router(exchange.router, prefix="/api/v1", tags=["exchange"])
 
 @app.get("/")
 def root():
-    return {"message": "拾光 Agent backend is running", "version": "0.8.0"}
+    return {"message": "拾光 Agent backend is running", "version": "0.9.0"}
