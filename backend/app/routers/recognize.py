@@ -5,6 +5,7 @@ import logging
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from ..services.recognition_pipeline import RecognitionPipeline
+from ..services.user_prompt import build_recognition_tip
 
 logger = logging.getLogger("recognize")
 
@@ -94,4 +95,5 @@ async def recognize_image(image: UploadFile | None = File(default=None)):
         result = _pipeline.recommend()
         result["fallback_reason"] = "识别服务异常，请手动选择类别"
 
+    result["tips"] = build_recognition_tip(result)
     return {"code": 0, "message": "ok", "data": result}

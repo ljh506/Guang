@@ -60,3 +60,11 @@ AIGC:
 - Day 8（成员A）：Message 模型与消息接口（Conversation 会话 + Message 消息 + 快捷消息模板接口 + 交易状态流转接口，集成成员B Day8 chat_rules）；验收链路「想要请求→会话→消息列表→聊天→收发」全通，API 验收 PASS=27 FAIL=0，全量回归（Day2~Day8 十套测试）无 FAIL；交接文档见 `docs/交接文档_成员A_Day8.md`。
 - Day 9（成员B）：match_engine 匹配算法交付——意愿 50% + 价格 30% + 同校 20%，三级分级（high≥0.75 / normal≥0.50 / low<0.50），自测 PASS=50 FAIL=0。
 - Day 9（成员A）：Exchange 模型与匹配接口（POST /exchange/match 匹配推荐 + POST /exchange/accept 确认匹配 + GET /exchange/matches 匹配记录 + wish 意愿表达接口），集成成员B match_engine；API 验收 PASS=33 FAIL=0，全量回归（Day2~Day9 十三项测试）无 FAIL；交接文档见 docs/交接文档_成员A_Day9.md。
+- Day 10/11（成员A）：交换状态流转 API（POST /exchange/{id}/confirm 双方确认 + /cancel 取消 + GET /exchange/{id}/protocol 协议卡片）与全链路联调（发起→匹配→确认→交换完成），集成成员B match_explanation / algorithm_check；Exchange 加 confirm_a/confirm_b 字段，状态机 negotiating→confirmed，确认后商品置 exchanged 防重复；API 验收 PASS=28 FAIL=0、算法检查 PASS=27 FAIL=0；版本 0.8.0→0.9.0；提交 ba35dd1 已推 GitHub。
+- Day 12（成员B）：user_prompt 用户提示模块交付——AI 识别提示（auto_fill/manual_confirm/manual_select/fallback）与估价提示（成功/标价偏离/错误码），自测 PASS=44 FAIL=0。
+- Day 12（成员A）：识别/估价接口集成提示字段（recognize 返回 data.tips、estimate 返回 tips，原返回结构不变）；版本 0.9.0→1.0.0；API 验收 PASS=29 FAIL=0、B 自测适配 PASS=44 FAIL=0；交接文档见 docs/交接文档_成员A_Day12.md。
+- Day 13（成员B）：比赛演示数据交付——7 校 / 5 用户 / 20 商品 / 3 交换 / 聊天记录（demo_data.py + shiguang_demo_full.db），自测 PASS=30 FAIL=0。
+- Day 13（成员A）：演示数据接入后端（scripts/seed_demo.py 幂等种子，衔接 price_engine 估价区间与 match_engine 匹配评分、状态机映射 negotiating→open/confirmed）；API 验收 PASS=12 FAIL=0；版本 1.0.0→1.1.0。
+- Day 14（成员B）：算法原理说明交付（AI 识别 / 估价规则 / 匹配算法 / 交换协议 / 状态机 / 用户提示），自测 PASS=29 FAIL=0。
+- Day 14（成员A）：比赛材料归档——算法原理说明.md 收入 docs/，并以后端代码为权威来源做常量一致性核对；核对 PASS=24 FAIL=0；版本 1.1.0。
+- Day 15（成员A）：封版回归与 GitHub 同步——全量回归（Day2~Day15 全部测试）无 FAIL；版本 1.1.0→1.2.0 封版；提交已推 GitHub。

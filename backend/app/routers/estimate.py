@@ -20,6 +20,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from ..services.price_engine import estimate_price
+from ..services.user_prompt import build_price_tip
 
 router = APIRouter()
 
@@ -53,5 +54,7 @@ def estimate(payload: EstimateRequest):
         asking_price=payload.asking_price,
     )
     if "error" in est:
-        return {"success": False, "error": est["error"]}
-    return {"success": True, "data": est}
+        return {"success": False, "error": est["error"],
+                "tips": build_price_tip(est)}
+    return {"success": True, "data": est,
+            "tips": build_price_tip(est)}
